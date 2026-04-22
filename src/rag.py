@@ -16,6 +16,12 @@ KB_PATH = os.path.join(
     "autostream_kb.json",
 )
 
+FAISS_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "knowledge_base",
+    "faiss_index",
+)
+
 _vector_store = None
 
 
@@ -97,13 +103,20 @@ def _load_knowledge_base() -> list[Document]:
 
 def get_vector_store() -> FAISS:
     """
-    Get or create the FAISS vector store (cached after first call).
+    Get or create the FAISS vector store.
+    Saves to and loads from local disk to prevent re-embedding latency.
     """
     global _vector_store
     if _vector_store is None:
-        documents = _load_knowledge_base()
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
-        _vector_store = FAISS.from_documents(documents, embeddings)
+        from dotenv import load_dotenv
+        load_dotenv()
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+        if os.path.exists(FAISS_PATH):
+            _vector_store = FAISS.load_local(FAISS_PATH, embeddings, allow_dangerous_deserialization=True)
+        else:
+            documents = _load_knowledge_base()
+            _vector_store = FAISS.from_documents(documents, embeddings)
+            _vector_store.save_local(FAISS_PATH)
     return _vector_store
 
 
