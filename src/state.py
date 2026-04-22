@@ -1,6 +1,6 @@
 """
 State management for the AutoStream AI Agent.
-Defines the typed state schema used by LangGraph to maintain conversation context.
+Defines the typed state schema used by LangGraph.
 """
 
 from typing import TypedDict, Annotated, Optional
@@ -20,11 +20,10 @@ class AgentState(TypedDict):
     Central state for the AutoStream conversational agent.
     
     Attributes:
-        messages: Conversation history with automatic message merging via add_messages.
-        intent: The classified intent of the latest user message.
-                One of: 'greeting', 'product_inquiry', 'high_intent', or empty string.
-        lead_info: Dictionary holding collected lead details (name, email, platform).
-        lead_captured: Flag indicating whether the lead has been successfully captured.
+        messages: Conversation history (auto-managed by LangGraph's add_messages reducer).
+        intent: Classified intent of the latest user message.
+        lead_info: Accumulated lead details across conversation turns.
+        lead_captured: Flag to prevent duplicate tool invocations.
     """
     messages: Annotated[list[BaseMessage], add_messages]
     intent: str
