@@ -102,7 +102,7 @@ def get_vector_store() -> FAISS:
     global _vector_store
     if _vector_store is None:
         documents = _load_knowledge_base()
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
         _vector_store = FAISS.from_documents(documents, embeddings)
     return _vector_store
 
